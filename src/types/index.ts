@@ -17,10 +17,17 @@ export interface IProduct {
 } 
 
 export interface IBuyer {
-  payment: TPayment ;
+  payment: TPayment;
   email: string;
   phone: string;
   address: string;
+}
+
+export interface IErrors {
+  payment?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface IOrderRequest extends IBuyer {

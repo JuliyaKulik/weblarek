@@ -23,20 +23,20 @@ apiProducts.items.map(item => {
 const selectedItem = productsModel.getProductsList()[0];
 const selectedItem2 = productsModel.getProductsList()[1];
 
-productsModel.setSelectedProduct(selectedItem);
+productsModel.selectProduct(selectedItem);
 console.log('Выбранный товар из каталога: ', productsModel.getSelectedProduct());
 
 const cartModel = new Cart();
 
-cartModel.addProductInCart(selectedItem);
-cartModel.addProductInCart(selectedItem2);
+cartModel.addProduct(selectedItem);
+cartModel.addProduct(selectedItem2);
 
 console.log('Добавили товар в корзину: ', cartModel.getProductsList());
 console.log('Проверка на наличие товара в корзине:', cartModel.hasProduct(selectedItem.id));
 console.log('Общая стоимость товаров в корзине:', cartModel.getTotalPrice());
-console.log('Общее количество товаров в корзине:', cartModel.getTotalProductsInCart());
+console.log('Общее количество товаров в корзине:', cartModel.getTotalProducts());
 
-cartModel.removeProductInCart(selectedItem);
+cartModel.removeProduct(selectedItem);
 console.log('Удалили товар из корзины: ', cartModel.getProductsList());
 
 cartModel.clearCart();

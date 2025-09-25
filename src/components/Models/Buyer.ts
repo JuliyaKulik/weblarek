@@ -1,4 +1,4 @@
-import { IBuyer, TPayment } from '../../types/index.ts'
+import { IBuyer, TPayment, IErrors } from '../../types/index.ts'
 
 export class Buyer {
   private payment: TPayment = 'card';
@@ -6,11 +6,19 @@ export class Buyer {
   private phone: string = '';
   private address: string = '';
 
-  setBuyerData(data: IBuyer): void {
-    this.payment = data.payment;
-    this.email = data.email;
-    this.phone = data.phone;
-    this.address = data.address;
+  setBuyerData(data: Partial<IBuyer>): void {
+    if (data.payment !== undefined) {
+      this.payment = data.payment;
+    }
+    if (data.email !== undefined) {
+      this.email = data.email;
+    }
+    if (data.phone !== undefined) {
+      this.phone = data.phone;
+    }
+    if (data.address !== undefined) {
+      this.address = data.address;
+    }
   }
 
   setBuyerPayment(value: TPayment) { 
@@ -45,8 +53,8 @@ export class Buyer {
     this.address = '';
   }
 
-  validateBuyerData(): { payment?: string; email?: string; phone?: string; address?: string } {
-    const errors: { payment?: string; email?: string; phone?: string; address?: string } = {};
+  validateBuyerData(): IErrors {
+    const errors: IErrors = {};
     
     if (!this.payment) {
       errors.payment = 'Не выбран вид оплаты';

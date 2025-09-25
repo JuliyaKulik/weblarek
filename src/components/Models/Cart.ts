@@ -7,11 +7,11 @@ export class Cart {
     return this.productsList;
   }
 
-  addProductInCart(product: IProduct): void {
+  addProduct(product: IProduct): void {
     this.productsList.push(product);
   }
 
-  removeProductInCart(product: IProduct): void {
+  removeProduct(product: IProduct): void {
     this.productsList = this.productsList.filter(p => p.id !== product.id);
   }
 
@@ -23,7 +23,7 @@ export class Cart {
     return this.productsList.reduce((sum, product) => sum + (product.price ?? 0), 0);
   }
 
-  getTotalProductsInCart(): number {
+  getTotalProducts(): number {
     return this.productsList.length;
   }
 

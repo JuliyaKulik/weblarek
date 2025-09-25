@@ -12,11 +12,11 @@ export class Catalog {
     return this.productsList;
   }
 
-  getProductById(id: string): IProduct | undefined {
-    return this.productsList.find(product => product.id === id);
+  getProductById(id: string): IProduct | null {
+    return this.productsList.find(product => product.id === id) || null;
   }
 
-  setSelectedProduct(product: IProduct): void {
+  selectProduct(product: IProduct): void {
     this.selectedProduct = product;
   }
 
