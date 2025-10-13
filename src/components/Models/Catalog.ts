@@ -1,11 +1,13 @@
 import { IProduct } from '../../types/index.ts';
+import { EventEmitter } from "../base/Events";
 
-export class Catalog {
-  private productsList: IProduct [] = [];
-  private selectedProduct: IProduct | null = null;
+export class Catalog extends EventEmitter {
+  protected  productsList: IProduct [] = [];
+  protected  selectedProduct: IProduct | null = null;
 
   setProductsList(products: IProduct[]): void {
     this.productsList = products;
+    this.emit('catalog:changed');
   }
 
   getProductsList(): IProduct [] {
@@ -18,6 +20,7 @@ export class Catalog {
 
   selectProduct(product: IProduct): void {
     this.selectedProduct = product;
+    this.emit('card:selected', product);
   }
 
   getSelectedProduct(): IProduct | null {

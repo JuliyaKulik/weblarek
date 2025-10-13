@@ -1,10 +1,11 @@
-import { IBuyer, TPayment, IErrors } from '../../types/index.ts'
+import { IBuyer, TPayment, IErrors } from '../../types/index.ts';
+import { EventEmitter } from "../base/Events";
 
-export class Buyer {
-  private payment: TPayment = 'card';
-  private email: string = '';
-  private phone: string = '';
-  private address: string = '';
+export class Buyer extends EventEmitter {
+  protected  payment: TPayment = 'card';
+  protected  email: string = '';
+  protected  phone: string = '';
+  protected  address: string = '';
 
   setBuyerData(data: Partial<IBuyer>): void {
     if (data.payment !== undefined) {
@@ -19,22 +20,27 @@ export class Buyer {
     if (data.address !== undefined) {
       this.address = data.address;
     }
+    this.emit('buyer:changed');
   }
 
   setBuyerPayment(value: TPayment) { 
-    this.payment = value; 
+    this.payment = value;
+    this.emit('buyer:changed'); 
   }
 
   setBuyerEmail(value: string) {
     this.email = value;
+    this.emit('buyer:changed');
   }
 
   setBuyerPhone(value: string) {
     this.phone = value;
+    this.emit('buyer:changed');
   }
 
   setBuyerAddress(value: string) {
     this.address = value;
+    this.emit('buyer:changed');
   }
 
   getBuyerData(): IBuyer {
@@ -51,6 +57,8 @@ export class Buyer {
     this.email = '';
     this.phone = '';
     this.address = '';
+    this.emit('buyer:changed'); 
+    this.emit('buyer:cleared');
   }
 
   validateBuyerData(): IErrors {

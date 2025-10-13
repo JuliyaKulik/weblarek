@@ -1,14 +1,14 @@
 import { IApi, IProduct, IOrderRequest, IOrderResponse } from '../../types/index.ts';
 
 export class WebLarekApi {
-  private api: IApi;
+  protected  api: IApi;
 
   constructor(api: IApi) {
     this.api = api;
   }
 
    async fetchProductsList(): Promise<IProduct[]> {
-    const response = await this.api.get<{ items: IProduct[] }>('/product/');
+    const response = await this.api.get<{ items: IProduct[]}>('/product/');
     return response.items;
   }
 
