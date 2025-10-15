@@ -20,31 +20,26 @@ export class Buyer extends EventEmitter {
     if (data.address !== undefined) {
       this.address = data.address;
     }
-    this.emit('buyer:changed');
     this.validateBuyerData();
   }
 
   setBuyerPayment(value: TPayment) { 
     this.payment = value;
-    this.emit('buyer:changed');
     this.validateBuyerData();
   }
 
   setBuyerEmail(value: string) {
     this.email = value;
-    this.emit('buyer:changed');
     this.validateBuyerData();
   }
 
   setBuyerPhone(value: string) {
     this.phone = value;
-    this.emit('buyer:changed');
     this.validateBuyerData();
   }
 
   setBuyerAddress(value: string) {
     this.address = value;
-    this.emit('buyer:changed');
     this.validateBuyerData();
   }
 
@@ -62,7 +57,6 @@ export class Buyer extends EventEmitter {
     this.email = '';
     this.phone = '';
     this.address = '';
-    this.emit('buyer:changed');
     this.validateBuyerData();
   }
 
