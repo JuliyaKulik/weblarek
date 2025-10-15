@@ -20,27 +20,22 @@ export class Buyer extends EventEmitter {
     if (data.address !== undefined) {
       this.address = data.address;
     }
-    this.emit('buyer:changed');
   }
 
   setBuyerPayment(value: TPayment) { 
     this.payment = value;
-    this.emit('buyer:changed'); 
   }
 
   setBuyerEmail(value: string) {
     this.email = value;
-    this.emit('buyer:changed');
   }
 
   setBuyerPhone(value: string) {
     this.phone = value;
-    this.emit('buyer:changed');
   }
 
   setBuyerAddress(value: string) {
     this.address = value;
-    this.emit('buyer:changed');
   }
 
   getBuyerData(): IBuyer {
@@ -57,8 +52,6 @@ export class Buyer extends EventEmitter {
     this.email = '';
     this.phone = '';
     this.address = '';
-    this.emit('buyer:changed'); 
-    this.emit('buyer:cleared');
   }
 
   validateBuyerData(): IErrors {

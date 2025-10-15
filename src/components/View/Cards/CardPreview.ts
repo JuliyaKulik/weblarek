@@ -5,7 +5,9 @@ import { Card, TCard } from '../Cards/Card.ts';
 import { categoryMap, CDN_URL } from '../../../utils/constants.ts';
 
 type CategoryKey = keyof typeof categoryMap;
-export type TCardPreview = Pick<IProduct, 'category' | 'image' | 'description' > & TCard;
+export type TCardPreview = Pick<IProduct, 'category' | 'image' | 'description' > & TCard & {
+  inCart?: boolean;
+};
 
 export class CardPreview extends Card<TCardPreview> {
   protected categoryElement: HTMLElement;
@@ -21,15 +23,21 @@ export class CardPreview extends Card<TCardPreview> {
     this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
     this.descriptionElement = ensureElement<HTMLElement>('.card__text', this.container);
     this.cardButton = ensureElement<HTMLButtonElement>('.card__button', this.container);
+      
     this.cardButton.addEventListener('click', () => {
-      if (this._inCart) {
-        this.events.emit('card:remove', { card: this.idElement });
-      } else {
-        this.events.emit('card:add', { card: this.idElement });
-      }
-    })
+      this.events.emit('basket:check', { 
+        card: this.id,
+        callback: (currentlyInCart: boolean) => {
+          if (currentlyInCart) {
+            this.events.emit('card:delete', { card: this.id });
+          } else {
+            this.events.emit('card:add', { card: this.id });
+          }
+        }
+      });
+    });
   }
-
+  
   set category(value: string) {
     this.categoryElement.textContent = value;
       for (const key in categoryMap) {
@@ -37,10 +45,11 @@ export class CardPreview extends Card<TCardPreview> {
           categoryMap[key as CategoryKey],
           key === value);
       }
-    }
+  }
   
   set image(value: string) {
-    this.setImage(this.imageElement, `${CDN_URL}/${value}`, this.title || '');
+    const pngImage = value.replace('.svg', '.png');
+    this.setImage(this.imageElement, `${CDN_URL}/${pngImage}`, this.title || '');
   }
 
   set description(value: string) {
@@ -61,7 +70,7 @@ export class CardPreview extends Card<TCardPreview> {
       this.cardButton.textContent = 'Удалить из корзины';
     } else {
       this.cardButton.disabled = false;
-      this.cardButton.textContent = 'В корзину';
+      this.cardButton.textContent = 'Купить';
     }
   }
 

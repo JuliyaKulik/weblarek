@@ -7,7 +7,7 @@ export type TCard = Pick<IProduct, 'title' | 'price' | 'id'>;
 export class Card<T = {}> extends Component<TCard & T>  {
   protected titleElement: HTMLElement;
   protected priceElement: HTMLElement;
-  public idElement: string = '';
+  public _id: string = '';
 
   constructor(container: HTMLElement) {
     super(container);
@@ -16,8 +16,13 @@ export class Card<T = {}> extends Component<TCard & T>  {
     this.priceElement = ensureElement<HTMLElement>('.card__price', this.container);
   }
 
-  set id(id: string) {
-    this.idElement = id;
+  get id(): string {
+    return this._id;
+  }
+
+  set id(value: string) {
+    this._id = value;
+    this.container.id = value;
   }
 
   set title(value: string) {

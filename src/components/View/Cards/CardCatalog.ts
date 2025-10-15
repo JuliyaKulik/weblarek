@@ -17,7 +17,7 @@ export class CardCatalog extends Card<TCardCatalog> {
     this.categoryElement = ensureElement<HTMLElement>('.card__category', this.container);
     this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
     this.container.addEventListener('click', () => {
-      this.events.emit('card:open', { card: this.idElement });
+      this.events.emit('card:open', { card: this.id });
     });
   }
 
@@ -31,6 +31,7 @@ export class CardCatalog extends Card<TCardCatalog> {
   }
 
   set image(value: string) {
-    this.setImage(this.imageElement, `${CDN_URL}/${value}`, this.title || '');
+    const pngImage = value.replace('.svg', '.png');
+    this.setImage(this.imageElement, `${CDN_URL}/${pngImage}`, this.title || '');
   }
 } 

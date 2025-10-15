@@ -20,7 +20,6 @@ export class Catalog extends EventEmitter {
 
   selectProduct(product: IProduct): void {
     this.selectedProduct = product;
-    this.emit('card:selected', product);
   }
 
   getSelectedProduct(): IProduct | null {

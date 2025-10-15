@@ -9,7 +9,6 @@ export class Gallery extends Component<IGallery> {
   protected catalogElement: HTMLElement;
 
    constructor(container?: HTMLElement) {
-    // Если контейнер не передан, находим его по селектору
     super(container || ensureElement<HTMLElement>('.gallery'));
     this.catalogElement = this.container;
   }

@@ -26,18 +26,15 @@ export class Modal extends Component<IModal> {
 
   open() {
     this.container.classList.add('modal_active');
-    this.events.emit('modal:open');
   }
 
   close() {
     this.container.classList.remove('modal_active');
     this.contentElement.replaceChildren();
-    this.events.emit('modal:closed');
   }
 
   set content(element: HTMLElement) {
     this.contentElement.replaceChildren();
     this.contentElement.appendChild(element);
-    this.open(); 
   }
 }

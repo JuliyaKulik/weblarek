@@ -18,9 +18,19 @@ export class ContactsForm extends Form<TContactsForm> {
     this.phoneElement = ensureElement<HTMLInputElement>('input[name="phone"]', this.container);
     this.emailElement.addEventListener('input', () => {
       this.events.emit('order:change', { field: 'email', value: this.emailElement.value });
+      this.validateContactsForm();
     });
+    
     this.phoneElement.addEventListener('input', () => {
       this.events.emit('order:change', { field: 'phone', value: this.phoneElement.value });
+      this.validateContactsForm();
+    });
+
+    this.nextButton.textContent = 'Оплатить';
+    this.nextButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (this.nextButton.disabled) return;
+      this.events.emit('contacts:submit');
     });
   }
 
@@ -31,5 +41,25 @@ export class ContactsForm extends Form<TContactsForm> {
   set phoneValue(value: string) {
     this.phoneElement.value = value;
   }
+
+  validateContactsForm(): boolean {
+    const emailValid = this.emailElement.value.trim().length > 0;
+    const phoneValid = this.phoneElement.value.trim().length > 0;
+    
+    this.isButtonValid = emailValid && phoneValid;
+    
+    if (!emailValid && !phoneValid) {
+      this.errors = 'Заполните email и телефон';
+    } else if (!emailValid) {
+      this.errors = 'Укажите email';
+    } else if (!phoneValid) {
+      this.errors = 'Укажите телефон';
+    } else {
+      this.errors = '';
+    }
+    
+    return this.isButtonValid;
+  }
 }
+
 

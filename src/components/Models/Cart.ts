@@ -10,20 +10,17 @@ export class Cart extends EventEmitter {
 
   addProduct(product: IProduct): void {
     this.productsList.push(product);
-    this.emit('card:add');
     this.emit('basket:changed');
   }
 
   removeProduct(product: IProduct): void {
     this.productsList = this.productsList.filter(p => p.id !== product.id);
-    this.emit('basket:delete');
     this.emit('basket:changed');
   }
 
   clearCart(): void {
     this.productsList = [];
     this.emit('basket:changed');
-    this.emit('basket:cleared');
   }
 
   getTotalPrice(): number {
