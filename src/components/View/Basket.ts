@@ -25,14 +25,20 @@ export class Basket extends Component<IBasket> {
   set items(elements: HTMLElement[]) {
     if(elements.length === 0) {
       this.listElements.innerHTML = '<div>Корзина пуста</div>';
-      this.listElements.classList.add('basket-empty');
+      this.listElements.classList.add('basket__list_empty');
+      this.listElements.classList.remove('basket__list_scroll');
       this.basketButton.disabled = true;
     } else {
       this.listElements.innerHTML = '';
       elements.forEach(el => this.listElements.appendChild(el));
-      this.listElements.classList.remove('basket-empty');
+      this.listElements.classList.remove('basket__list_empty');
       this.basketButton.disabled = false;
     }
+    if (elements.length > 4) {
+        this.listElements.classList.add('basket__list_scroll');
+      } else {
+        this.listElements.classList.remove('basket__list_scroll');
+      }
   }
 
   set total(value: number) {

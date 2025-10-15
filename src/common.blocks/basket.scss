@@ -10,6 +10,21 @@
     padding: 0;
     margin: 0;
     flex-grow: 1;
+
+    &_scroll {
+      max-height: 400px;
+      overflow-y: auto; 
+      padding-right: 20px;
+     
+      scrollbar-width: thin;
+      scrollbar-color: #c1c1c1 #f1f1f1;
+    }
+    
+    &_empty {
+      max-height: none;
+      overflow-y: visible;
+      padding-right: 0;
+    }
   }
 
   &__item {

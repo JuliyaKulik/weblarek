@@ -19,14 +19,14 @@ import { ContactsForm } from './components/View/Forms/ContactsForm.ts';
 import { OrderForm } from './components/View/Forms/OrderForm.ts';
 import { ensureElement, cloneTemplate } from './utils/utils.ts';
 
+const events = new EventEmitter();
+
 const productsModel = new Catalog();
 const cartModel = new Cart();
 const buyerModel = new Buyer();
 
 const api = new Api(API_URL);
 const larekApi = new WebLarekApi(api);
-
-const events = new EventEmitter();
 
 const header = new Header(events, ensureElement<HTMLElement>('.header'));
 const gallery = new Gallery(ensureElement<HTMLElement>('.gallery'));
@@ -102,11 +102,7 @@ function renderBasket() {
   basket.total = cartModel.getTotalPrice();
 }
 
-cartModel.on('basket:changed', () => renderBasket());
-
 events.on('basket:open', () => {
-  renderBasket();
-
   const basketContent = basket.render();
 
   modal.content = basketContent;
@@ -122,17 +118,6 @@ events.on('card:add', (data: { card: string }) => {
   const product = productsModel.getProductById(data.card);
   if (product) {
     cartModel.addProduct(product);
-    
-    const currentPreview = document.querySelector('.modal_active .card_full');
-    if (currentPreview) {
-      const titleElement = currentPreview.querySelector('.card__title');
-      if (titleElement && titleElement.textContent === product.title) {
-        const button = currentPreview.querySelector('.card__button') as HTMLButtonElement;
-        if (button) {
-          button.textContent = 'Удалить из корзины';
-        }
-      }
-    }
   }
 });
 
@@ -140,22 +125,29 @@ events.on('card:delete', (data: { card: string }) => {
   const product = productsModel.getProductById(data.card);
   if (product) {
     cartModel.removeProduct(product);
-    
-    const currentPreview = document.querySelector('.modal_active .card_full');
-    if (currentPreview) {
-      const titleElement = currentPreview.querySelector('.card__title');
-      if (titleElement && titleElement.textContent === product.title) {
-        const button = currentPreview.querySelector('.card__button') as HTMLButtonElement;
-        if (button) {
-          button.textContent = 'Купить';
-        }
-      }
-    }
   }
 });
 
+function updatePreviewButton(cardId: string, inCart: boolean) {
+  const currentPreview = document.querySelector('.modal_active .card_full');
+  if (currentPreview && currentPreview.id === cardId) {
+    const button = currentPreview.querySelector('.card__button') as HTMLButtonElement;
+    if (button) {
+      button.textContent = inCart ? 'Удалить из корзины' : 'Купить';
+    }
+  }
+}
+
 cartModel.on('basket:changed', () => {
+  renderBasket();
   header.counter = cartModel.getTotalProducts();
+
+  const currentPreview = document.querySelector('.modal_active .card_full');
+  if (currentPreview) {
+    const productId = currentPreview.id;
+    const inCart = cartModel.hasProduct(productId);
+    updatePreviewButton(productId, inCart);
+  }
 });
 
 events.on('basket:ready', () => {
@@ -167,11 +159,14 @@ events.on('basket:ready', () => {
   const buyer = buyerModel.getBuyerData();
   orderForm.payment = buyer.payment;
   orderForm.addressValue = buyer.address;
-  
-  orderForm.validateOrderForm();
-  
+
   modal.content = orderForm.render();
   modal.open();
+});
+
+buyerModel.on('form:errors', (errors: any) => {
+  orderForm.validateForm(errors);
+  contactsForm.validateForm(errors);
 });
 
 events.on('order:change', (data: { field: string; value: string }) => {
@@ -187,7 +182,7 @@ events.on('order:change', (data: { field: string; value: string }) => {
 });
 
 events.on('order:next', () => {
-  const errors = buyerModel.validateBuyerData();
+  const errors = buyerModel.validateOrder();
   
   if (errors.address || errors.payment) {
     const errorMessages = [];
@@ -201,17 +196,15 @@ events.on('order:next', () => {
   const buyer = buyerModel.getBuyerData();
   contactsForm.emailValue = buyer.email;
   contactsForm.phoneValue = buyer.phone;
- 
-  contactsForm.validateContactsForm();
   
   modal.content = contactsForm.render();
 });
 
 
 events.on('contacts:submit', () => {
-  const errors = buyerModel.validateBuyerData();
+  const errors = buyerModel.validateContacts();
   
-  if (errors.email || errors.phone) {
+ if (errors.email || errors.phone) {
     const errorText = [];
     if (errors.email) errorText.push(errors.email);
     if (errors.phone) errorText.push(errors.phone);

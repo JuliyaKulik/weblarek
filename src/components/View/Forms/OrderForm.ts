@@ -1,7 +1,7 @@
 import { ensureElement } from '../../../utils/utils.ts';
 import { IEvents } from '../../base/Events.ts';
 import { Form, TForm } from '../Forms/Form.ts';
-import { TPayment } from '../../../types/index.ts';
+import { TPayment, IErrors } from '../../../types/index.ts';
 
 type TOrderForm = {
   addressElement: HTMLInputElement;
@@ -24,23 +24,24 @@ export class OrderForm extends Form<TOrderForm> {
     this.cardButton.classList.remove('button_alt-active');
     this.cashButton.addEventListener('click', () => {
       this.setPayment('cash');
-      this.validateOrderForm();
     });
     
     this.cardButton.addEventListener('click', () => {
       this.setPayment('card');
-      this.validateOrderForm();
     });
     
     this.addressElement.addEventListener('input', () => {
       this.events.emit('order:change', { field: 'address', value: this.addressElement.value });
-      this.validateOrderForm();
     });
 
      this.nextButton.addEventListener('click', (e) => {
       e.preventDefault();
       if (this.nextButton.disabled) return;
       this.events.emit('order:next');
+    });
+
+    this.events.on('form:errors', (errors: IErrors) => {
+      this.validateForm(errors);
     });
   }
 
@@ -72,21 +73,15 @@ export class OrderForm extends Form<TOrderForm> {
     this.addressElement.value = value;
   }
 
-  validateOrderForm(): boolean {
-    const addressValid = this.addressElement.value.trim().length > 0;
-    const paymentSelected = this.cardButton.classList.contains('button_alt-active') || 
-                            this.cashButton.classList.contains('button_alt-active');
+  validateForm(errors: IErrors): void {
+    const orderErrors = [errors.address, errors.payment].filter(Boolean);
     
-    this.isButtonValid = addressValid && paymentSelected;
+    this.isButtonValid = orderErrors.length === 0;
     
-    if (!addressValid) {
-      this.errors = 'Укажите адрес доставки';
-    } else if (!paymentSelected) {
-      this.errors = 'Не выбран вид оплаты';
+    if (orderErrors.length > 0) {
+      this.errors = orderErrors.join(', ');
     } else {
       this.errors = '';
     }
-    
-    return this.isButtonValid;
   }
 }

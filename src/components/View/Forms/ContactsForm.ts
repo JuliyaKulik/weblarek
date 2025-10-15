@@ -1,6 +1,7 @@
 import { ensureElement } from '../../../utils/utils.ts';
 import { IEvents } from '../../base/Events.ts';
 import { Form, TForm } from '../Forms/Form.ts';
+import { IErrors } from '../../../types/index.ts';
 
 type TContactsForm = {
   emailElement: HTMLInputElement;
@@ -18,12 +19,10 @@ export class ContactsForm extends Form<TContactsForm> {
     this.phoneElement = ensureElement<HTMLInputElement>('input[name="phone"]', this.container);
     this.emailElement.addEventListener('input', () => {
       this.events.emit('order:change', { field: 'email', value: this.emailElement.value });
-      this.validateContactsForm();
     });
     
     this.phoneElement.addEventListener('input', () => {
       this.events.emit('order:change', { field: 'phone', value: this.phoneElement.value });
-      this.validateContactsForm();
     });
 
     this.nextButton.textContent = 'Оплатить';
@@ -31,6 +30,10 @@ export class ContactsForm extends Form<TContactsForm> {
       e.preventDefault();
       if (this.nextButton.disabled) return;
       this.events.emit('contacts:submit');
+    });
+
+    this.events.on('form:errors', (errors: IErrors) => {
+      this.validateForm(errors);
     });
   }
 
@@ -42,23 +45,16 @@ export class ContactsForm extends Form<TContactsForm> {
     this.phoneElement.value = value;
   }
 
-  validateContactsForm(): boolean {
-    const emailValid = this.emailElement.value.trim().length > 0;
-    const phoneValid = this.phoneElement.value.trim().length > 0;
+  validateForm(errors: IErrors): void {
+    const contactErrors = [errors.email, errors.phone].filter(Boolean);
     
-    this.isButtonValid = emailValid && phoneValid;
+    this.isButtonValid = contactErrors.length === 0;
     
-    if (!emailValid && !phoneValid) {
-      this.errors = 'Заполните email и телефон';
-    } else if (!emailValid) {
-      this.errors = 'Укажите email';
-    } else if (!phoneValid) {
-      this.errors = 'Укажите телефон';
+    if (contactErrors.length > 0) {
+      this.errors = contactErrors.join(', ');
     } else {
       this.errors = '';
     }
-    
-    return this.isButtonValid;
   }
 }
 
