@@ -29,8 +29,7 @@ export class Basket extends Component<IBasket> {
       this.listElements.classList.remove('basket__list_scroll');
       this.basketButton.disabled = true;
     } else {
-      this.listElements.innerHTML = '';
-      elements.forEach(el => this.listElements.appendChild(el));
+      this.listElements.replaceChildren(...elements);
       this.listElements.classList.remove('basket__list_empty');
       this.basketButton.disabled = false;
     }

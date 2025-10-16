@@ -45,7 +45,6 @@ const orderForm = new OrderForm(events, cloneTemplate(orderFormTempl));
 const contactsForm = new ContactsForm(events, cloneTemplate(contactsFormTempl));
 const orderSuccess = new OrderSuccess(events, cloneTemplate(orderSuccessTempl));
 
-
 function renderCatalog() {
   const products = productsModel.getProductsList();
   const items = products.map((item) => {
@@ -63,55 +62,27 @@ function renderCatalog() {
 
 productsModel.on('catalog:changed', () => renderCatalog());
 
-function openCardPreview(id: string) {
-  const product = productsModel.getProductById(id);
-  if(!product) return;
+events.on('card:open', (data: { card: string }) => {
+  const product = productsModel.getProductById(data.card);
+  if (!product) return;
 
   const cardPreview = new CardPreview(events, cloneTemplate(cardPreviewTempl));
+  const inCart = cartModel.hasProduct(product.id);
 
-  cardPreview.id = product.id;
-  cardPreview.title = product.title;
-  cardPreview.price = product.price;
-  cardPreview.category = product.category;
-  cardPreview.image = product.image;
-  cardPreview.description = product.description;
-
-  if (product.price === null) {
-    cardPreview.disableButton();
-  } else {
-    const inCart = cartModel.hasProduct(product.id);
-    cardPreview.inCart = inCart;
+  const previewData = {
+    id: product.id,
+    title: product.title,
+    price: product.price,
+    category: product.category,
+    image: product.image,
+    description: product.description,
+    inCart: inCart,
+    disabled: product.price === null
   };
 
-  modal.content = cardPreview.render();
+  const previewElement = cardPreview.render(previewData);
+  modal.content = previewElement;
   modal.open();
-}
-
-events.on('card:open', (data: { card: string }) => {
-  openCardPreview(data.card);
-});
-
-function renderBasket() {
-  const products = cartModel.getProductsList();
-  const items = products.map((item, index) => {
-    const card = new CardBasket(events, cloneTemplate(cardBasketTempl));
-    card.index = index + 1;
-    return card.render(item);
-  });
-  basket.items = items;
-  basket.total = cartModel.getTotalPrice();
-}
-
-events.on('basket:open', () => {
-  const basketContent = basket.render();
-
-  modal.content = basketContent;
-  modal.open();
-});
-
-events.on('basket:check', (data: { card: string; callback: (inCart: boolean) => void }) => {
-  const inCart = cartModel.hasProduct(data.card);
-  data.callback(inCart);
 });
 
 events.on('card:add', (data: { card: string }) => {
@@ -128,25 +99,42 @@ events.on('card:delete', (data: { card: string }) => {
   }
 });
 
-function updatePreviewButton(cardId: string, inCart: boolean) {
-  const currentPreview = document.querySelector('.modal_active .card_full');
-  if (currentPreview && currentPreview.id === cardId) {
-    const button = currentPreview.querySelector('.card__button') as HTMLButtonElement;
-    if (button) {
-      button.textContent = inCart ? 'Удалить из корзины' : 'Купить';
-    }
-  }
+function renderBasket() {
+  const products = cartModel.getProductsList();
+  const items = products.map((item, index) => {
+    const card = new CardBasket(events, cloneTemplate(cardBasketTempl));
+    card.index = index + 1;
+    return card.render(item);
+  });
+  basket.items = items;
+  basket.total = cartModel.getTotalPrice();
 }
 
-cartModel.on('basket:changed', () => {
+events.on('basket:open', () => {
   renderBasket();
-  header.counter = cartModel.getTotalProducts();
+  modal.content = basket.render();
+  modal.open();
+});
 
+cartModel.on('basket:changed', () => {
+  header.counter = cartModel.getTotalProducts();
+  renderBasket();
+  
   const currentPreview = document.querySelector('.modal_active .card_full');
   if (currentPreview) {
     const productId = currentPreview.id;
     const inCart = cartModel.hasProduct(productId);
-    updatePreviewButton(productId, inCart);
+    const button = currentPreview.querySelector('.card__button') as HTMLButtonElement;
+    
+    if (button) {
+      button.textContent = inCart ? 'Удалить из корзины' : 'Купить';
+    
+      if (inCart) {
+        button.setAttribute('data-in-cart', 'true');
+      } else {
+        button.removeAttribute('data-in-cart');
+      }
+    }
   }
 });
 
@@ -182,17 +170,6 @@ events.on('order:change', (data: { field: string; value: string }) => {
 });
 
 events.on('order:next', () => {
-  const errors = buyerModel.validateOrder();
-  
-  if (errors.address || errors.payment) {
-    const errorMessages = [];
-    if (errors.address) errorMessages.push(errors.address);
-    if (errors.payment) errorMessages.push(errors.payment);
-  
-    orderForm.errors = errorMessages.join(', ');
-    return;
-  }
- 
   const buyer = buyerModel.getBuyerData();
   contactsForm.emailValue = buyer.email;
   contactsForm.phoneValue = buyer.phone;
@@ -200,24 +177,11 @@ events.on('order:next', () => {
   modal.content = contactsForm.render();
 });
 
-
 events.on('contacts:submit', () => {
-  const errors = buyerModel.validateContacts();
-  
- if (errors.email || errors.phone) {
-    const errorText = [];
-    if (errors.email) errorText.push(errors.email);
-    if (errors.phone) errorText.push(errors.phone);
-  
-    contactsForm.errors = errorText.join(', ');
-    return;
-  }
+  const buyer = buyerModel.getBuyerData();
 
-  const orderData: IOrderRequest = {
-    payment: buyerModel.getBuyerData().payment,
-    email: buyerModel.getBuyerData().email,
-    phone: buyerModel.getBuyerData().phone,
-    address: buyerModel.getBuyerData().address,
+   const orderData: IOrderRequest = {
+    ...buyer,
     total: cartModel.getTotalPrice(),
     items: cartModel.getProductsList().map(product => product.id)
   }

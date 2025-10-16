@@ -23,18 +23,14 @@ export class CardPreview extends Card<TCardPreview> {
     this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
     this.descriptionElement = ensureElement<HTMLElement>('.card__text', this.container);
     this.cardButton = ensureElement<HTMLButtonElement>('.card__button', this.container);
+     this.cardButton.addEventListener('click', () => {
+      const isInCart = this.cardButton.getAttribute('data-in-cart') === 'true';
       
-    this.cardButton.addEventListener('click', () => {
-      this.events.emit('basket:check', { 
-        card: this.id,
-        callback: (currentlyInCart: boolean) => {
-          if (currentlyInCart) {
-            this.events.emit('card:delete', { card: this.id });
-          } else {
-            this.events.emit('card:add', { card: this.id });
-          }
-        }
-      });
+      if (isInCart) {
+        this.events.emit('card:delete', { card: this.id });
+      } else {
+        this.events.emit('card:add', { card: this.id });
+      }
     });
   }
   
@@ -57,11 +53,14 @@ export class CardPreview extends Card<TCardPreview> {
   }
 
   set inCart(value: boolean) {
-    this._inCart = value; 
-    this.updateButtonState();
+    if (value) {
+      this.cardButton.setAttribute('data-in-cart', 'true');
+    } else {
+      this.cardButton.removeAttribute('data-in-cart');
+    }
   }
 
-  private updateButtonState() {
+  /*private updateButtonState() {
     if (this.price === null) {
       this.cardButton.disabled = true;
       this.cardButton.textContent = 'Недоступно';
@@ -72,10 +71,11 @@ export class CardPreview extends Card<TCardPreview> {
       this.cardButton.disabled = false;
       this.cardButton.textContent = 'Купить';
     }
-  }
+  }*/
 
-  disableButton() {
+   disableButton() {
     this.cardButton.disabled = true;
     this.cardButton.textContent = 'Недоступно';
+    this.cardButton.removeAttribute('data-in-cart');
   }
 }
