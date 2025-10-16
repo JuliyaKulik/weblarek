@@ -55,25 +55,14 @@ export class CardPreview extends Card<TCardPreview> {
   set inCart(value: boolean) {
     if (value) {
       this.cardButton.setAttribute('data-in-cart', 'true');
+      this.cardButton.textContent = 'Удалить из корзины';
     } else {
       this.cardButton.removeAttribute('data-in-cart');
+      this.cardButton.textContent = 'Купить';
     }
   }
 
-  /*private updateButtonState() {
-    if (this.price === null) {
-      this.cardButton.disabled = true;
-      this.cardButton.textContent = 'Недоступно';
-    } else if (this._inCart) {
-      this.cardButton.disabled = false;
-      this.cardButton.textContent = 'Удалить из корзины';
-    } else {
-      this.cardButton.disabled = false;
-      this.cardButton.textContent = 'Купить';
-    }
-  }*/
-
-   disableButton() {
+  disableButton() {
     this.cardButton.disabled = true;
     this.cardButton.textContent = 'Недоступно';
     this.cardButton.removeAttribute('data-in-cart');
