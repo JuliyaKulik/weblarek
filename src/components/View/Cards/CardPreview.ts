@@ -23,7 +23,9 @@ export class CardPreview extends Card<TCardPreview> {
     this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
     this.descriptionElement = ensureElement<HTMLElement>('.card__text', this.container);
     this.cardButton = ensureElement<HTMLButtonElement>('.card__button', this.container);
-     this.cardButton.addEventListener('click', () => {
+    this.cardButton.addEventListener('click', () => {
+      if (this.price === null) return;
+      
       const isInCart = this.cardButton.getAttribute('data-in-cart') === 'true';
       
       if (isInCart) {
@@ -53,12 +55,16 @@ export class CardPreview extends Card<TCardPreview> {
   }
 
   set inCart(value: boolean) {
-    if (value) {
+    if (this.price === null) {
+      this.disableButton();
+    } else if (value) {
       this.cardButton.setAttribute('data-in-cart', 'true');
       this.cardButton.textContent = 'Удалить из корзины';
+      this.cardButton.disabled = false;
     } else {
       this.cardButton.removeAttribute('data-in-cart');
       this.cardButton.textContent = 'Купить';
+      this.cardButton.disabled = false;
     }
   }
 

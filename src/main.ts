@@ -83,11 +83,15 @@ events.on('card:open', (data: { card: string }) => {
   const previewElement = cardPreview.render(previewData);
   modal.content = previewElement;
   modal.open();
+  
+  if (product.price === null) {
+    cardPreview.disableButton();
+  }
 });
 
 events.on('card:add', (data: { card: string }) => {
   const product = productsModel.getProductById(data.card);
-  if (product) {
+  if (product && product.price !== null) {
     cartModel.addProduct(product);
   }
 });
